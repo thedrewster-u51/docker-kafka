@@ -1,0 +1,48 @@
+version: '3.2'
+
+services:
+  zookeeper:
+    build:
+      context: ./
+      args:
+        version: 2.7.0
+    volumes:
+      - type: bind
+        source: ./zookeeper/config/zookeeper.properties
+        target: /app/config/zookeeper.properties
+        read_only: true
+      - type: volume
+        source: zookeeper
+        target: /data_zookeeper
+    ports:
+      - "2181"
+    networks:
+      - kafka
+    command: ["bin/zookeeper-server-start.sh","config/zookeeper.properties"]
+    
+  kafka:
+    build:
+      context: ./
+      args:
+        version: 2.7.0
+    volumes:
+      - type: bind
+        source: ./kafka/config/server.properties
+        target: /app/config/server.properties
+        read_only: true
+      - type: volume
+        source: kafka
+        target: /data_kafka
+    ports:
+      - "9092:9092"
+    networks:
+      - kafka
+    command: ["bin/kafka-server-start.sh","config/server.properties"]
+
+networks:
+  kafka:
+    driver: bridge
+
+volumes:
+  zookeeper:
+  kafka:
